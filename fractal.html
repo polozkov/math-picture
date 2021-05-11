@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Math Picture Generator</title>
+</head>
+
+<body>
+    <style type="text/css">
+        html,
+        body {
+            font-family: monospace;
+            height: 100%;
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+
+    <canvas id="idCanvas"></canvas>
+
+    <script type="text/javascript">
+        //we will draw mathematical picture Pixel by Pixel
+        var main_canvas = window.document.getElementById('idCanvas');
+        var main_ctx = main_canvas.getContext('2d');
+
+        //maximize canvas sizes to inscribe it in client area
+        main_canvas.width = document.documentElement.clientWidth;
+        main_canvas.height = document.documentElement.clientHeight;
+
+        //data of each pixel for manipulating Pixel by Pixel
+        var main_image_data = main_ctx.createImageData(main_canvas.width, main_canvas.height);
+        var main_final_data = main_image_data.data;
+
+        //object with converting functions
+        var CONVERTER = {
+            //result is in [0..1), examples: 9.7 -> 0.7,  -9.7 -> 0.3
+            f_real_to_01: function (real_number) {
+                //floor is round_down function
+                return (real_number - Math.floor(real_number));
+            },
+
+            //real_from_0_to_1 in [0..1), result is integer in [0..255]
+            f_01_to_byte: function (real_from_0_to_1) {
+                return Math.floor(real_from_0_to_1 * 256);
+            },
+
+            //combine two functions
+            f_real_to_byte: function (real_number) {
+                return G.f_01_to_color(CONVERTER.f_real_to_01(real_number))
+            }
+        };
+
+        var CONST_HOW_MANY_STEPS_REPEAT_FUNCTION = 6;
+
+        //ONE_STEP (will be used for each pixel), x,y,z -> [new_x, new_y, new_z]
+        function f_calculate_next_step_xyz(x, y, z) {
+            //we can write here any real function for (x,y,z)
+            var new_x = x * x * x - y;
+            var new_y = y * y * y + z;
+            var new_z = z * z * z + x;
+
+            var x_01 = CONVERTER.f_real_to_01(new_x);
+            var y_01 = CONVERTER.f_real_to_01(new_y);
+            var z_01 = CONVERTER.f_real_to_01(new_z);
+
+            return [x_01, y_01, z_01];
+        };
+
+        //object with functions for generating RGB color
+        var RGB = {
+            //RGB color by 2 real numbers in [0..1)
+            f_only_convertion_to_rgb: function (x_01, y_01, z_01) {
+                var x_to_255 = CONVERTER.f_01_to_byte(x_01);
+                var y_to_255 = CONVERTER.f_01_to_byte(y_01);
+                var z_to_255 = CONVERTER.f_01_to_byte(z_01);
+                return [x_to_255, y_to_255, z_to_255];
+            },
+
+            //RGB color by three real numbers (with calculation)
+            f_calculation_and_convertion: function (x_01, y_01, z_01) {
+                var i_xyz_array = [];
+
+                for (var i = 0; i < CONST_HOW_MANY_STEPS_REPEAT_FUNCTION; i++) {
+                    //function for step, that will repaet for each integation
+                    i_xyz_array = f_calculate_next_step_xyz(x_01, y_01, z_01);
+
+                    //renew RGB components after making step
+                    x_01 = i_xyz_array[0];
+                    y_01 = i_xyz_array[1];
+                    z_01 = i_xyz_array[2];
+                }
+
+                //return RGB color
+                return RGB.f_only_convertion_to_rgb(x_01, y_01, z_01);
+            },
+
+            f_color_of_pixel_nx_ny: function (pixel_x, pixel_y) {
+                //for math calculations we need real numbers in [0..1)
+                var x_01 = pixel_x / main_canvas.width;
+                var y_01 = pixel_y / main_canvas.height;
+                //start from zero value for execution
+                var z_01 = 0;
+
+                //we return rgba 
+                return RGB.f_calculation_and_convertion(x_01, y_01, z_01);
+            }
+        };
+
+        //generate image_data by pixel_sizes of canvas
+        function f_generate_image_data(size_x, size_y) {
+            var arr_RGB = [];
+            var i_rgba = 0;
+
+            for (var ix = 0; ix < size_x; ix++) {
+                for (var iy = 0; iy < size_y; iy++) {
+                    //main_final_data is array with length  (size_x * size_y * 4)
+                    //we need to calculate index in this array for Red component
+                    i_rgba = 4 * (ix + iy * size_x);
+
+                    arr_RGB = RGB.f_color_of_pixel_nx_ny(ix, iy);
+
+                    main_final_data[i_rgba + 0] = arr_RGB[0];
+                    main_final_data[i_rgba + 1] = arr_RGB[1];
+                    main_final_data[i_rgba + 2] = arr_RGB[2];
+
+                    //Alpha compositing is miximum VISIBLE (max = 255)
+                    main_final_data[i_rgba + 3] = 255
+                }
+            }
+            main_ctx.putImageData(main_image_data, 0, 0);
+        }
+
+        f_generate_image_data(main_canvas.width, main_canvas.height);
+
+    </script>
+</body>
+
+</html>
