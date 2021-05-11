@@ -26,26 +26,27 @@
         var main_canvas = window.document.getElementById('idCanvas');
         var main_ctx = main_canvas.getContext('2d');
 
-        var SIZE_W = document.documentElement.clientWidth;
-        var SIZE_H = document.documentElement.clientHeight;
+        var SIZE_X = document.documentElement.clientWidth;
+        var SIZE_Y = document.documentElement.clientHeight;
 
         //data of each pixel for manipulating Pixel by Pixel
-        var main_image_data = main_ctx.createImageData(SIZE_W, SIZE_H);
+        var main_image_data = main_ctx.createImageData(SIZE_X, SIZE_Y);
         var main_final_data = main_image_data.data;
 
         //maximize canvas sizes to inscribe it in client area
-        main_canvas.width = SIZE_W;
-        main_canvas.height = SIZE_H;
+        main_canvas.width = SIZE_X;
+        main_canvas.height = SIZE_Y;
 
         var T = [0, 0, 0];
-        var i_rgba = 0;
+        var i_rgba = -4;
 
         //work with all pixels on canvas
-        for (var iy = 0; iy < SIZE_H; iy++) {
-            for (var ix = 0; ix < SIZE_W; ix++) {
-
+        for (var iy = 0; iy < SIZE_Y; iy++) {
+            for (var ix = 0; ix < SIZE_X; ix++) {
+                i_rgba += 4;
+                
                 //start from [real 0..1, real 0..1 and zero]
-                T = [ix / SIZE_W, iy / SIZE_H, 0];
+                T = [ix / SIZE_X, iy / SIZE_Y, 0];
 
                 //step function 
                 for (var step = 0; step < 6; step++) {
@@ -70,8 +71,6 @@
 
                 //Alpha compositing is miximum VISIBLE (max = 255)
                 main_final_data[i_rgba + 3] = 255;
-
-                i_rgba += 4;
             };
         };
 
