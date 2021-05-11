@@ -7,9 +7,7 @@
 </head>
 
 <body>
-    
     <style type="text/css">
-
         html,
         body {
             font-family: monospace;
@@ -17,10 +15,17 @@
             width: 100%;
             padding: 0;
             margin: 0;
-            overflow: hidden;
+            overflow-x: hidden;
         }
-        
     </style>
+
+    <p>
+Each pixel transform to the pair of real numbers [0..1) and add component z = 0. Repeat formula below 6 times: <br><br> 
+new_x = to_01(x * x * x - y); <br>
+new_y = to_01(y * y * y + z); <br>
+new_z = to_01(z * z * z + x); <br><br>
+Then generate RBG color.
+    </p>
 
     <canvas id="idCanvas"></canvas>
 
