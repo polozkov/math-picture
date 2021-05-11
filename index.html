@@ -30,7 +30,7 @@
         var SIZE_H = document.documentElement.clientHeight;
 
         //data of each pixel for manipulating Pixel by Pixel
-        var main_image_data = main_ctx.createImageData(main_canvas.width, main_canvas.height);
+        var main_image_data = main_ctx.createImageData(SIZE_W, SIZE_H);
         var main_final_data = main_image_data.data;
 
         //maximize canvas sizes to inscribe it in client area
