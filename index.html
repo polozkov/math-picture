@@ -29,13 +29,13 @@
         var SIZE_X = document.documentElement.clientWidth;
         var SIZE_Y = document.documentElement.clientHeight;
 
-        //data of each pixel for manipulating Pixel by Pixel
-        var main_image_data = main_ctx.createImageData(SIZE_X, SIZE_Y);
-        var main_final_data = main_image_data.data;
-
         //maximize canvas sizes to inscribe it in client area
         main_canvas.width = SIZE_X;
         main_canvas.height = SIZE_Y;
+        
+        //data of each pixel for manipulating Pixel by Pixel
+        var main_image_data = main_ctx.createImageData(SIZE_X, SIZE_Y);
+        var main_final_data = main_image_data.data;
 
         var T = [0, 0, 0];
         var i_rgba = -4;
